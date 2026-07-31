@@ -42,3 +42,24 @@ Contact sheet: out/sweep_sheet.png. Findings:
   metallic) ≈ t 12–32.
 
 Next: full-res validation (1920×1080) of s=1, f=0.2, v=0.5, extent ±3.
+
+## E4 — strong wells / slow rigid rotation (sub-circular plunge), extent ±4
+
+strength ∈ {5,10,20} × vrot ∈ {0.1,0.2,0.3}: everything decoheres into
+salt-and-pepper by t≈8. Plunging radial infall through the pentagon core
+destroys coherence. Also tried wells + broad central attractor
+(CENTRAL/CD) — same failure. Conclusion: the reference's coherence means
+most particles *circulate* on near-circular orbits instead of plunging.
+
+## E5 — Keplerian initial velocity (the breakthrough)
+
+v0 = vkep * v_circ(r) tangential, where v_circ = sqrt(|F_inward|·r) from the
+actual force law. Pure 5-well potential, strength=1, extent ±4.
+- friction 0.1: still too chaotic by t≈24.
+- friction 0.2, vkep 0.85–1.0: GORGEOUS. Whole-frame coherent differential
+  winding (accretion-disk marbling), intact 5-petal flower, ring of eddy
+  bullseyes, chaotic filigree bands — matches reference images 2–3.
+  Reference img2 ≈ t 6–8, img3 ≈ t 16–24 at these units.
+Chosen so far: SPRING=0 STRENGTH=1 FRICTION=0.2 VKEP=1.0, extent ±4 (16:9).
+TODO: check swirl handedness vs reference (theirs winds CW inward?),
+timing fine-tune, supersampled finals, animation.

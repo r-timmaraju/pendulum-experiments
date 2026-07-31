@@ -39,11 +39,18 @@ static int env_int(const char *name, int def) {
 static int    NMAG;
 static real   MX[16], MY[16];
 static real   FRICTION, SPRING, STRENGTH, D2;
+static real   CENTRAL, CD2;   /* broad central well: -C r/(r^2+D^2)^{3/2} */
 
 static inline void accel(real x, real y, real vx, real vy,
                          real *ax, real *ay) {
     real fx = -FRICTION * vx - SPRING * x;
     real fy = -FRICTION * vy - SPRING * y;
+    if (CENTRAL != 0.0) {
+        real rr = x * x + y * y + CD2;
+        real inv = CENTRAL / (rr * sqrt(rr));
+        fx -= x * inv;
+        fy -= y * inv;
+    }
     for (int i = 0; i < NMAG; i++) {
         real dx = MX[i] - x, dy = MY[i] - y;
         real dd = dx * dx + dy * dy + D2;
@@ -78,6 +85,10 @@ int main(int argc, char **argv) {
     real mrad = env_real("MAGRADIUS", 1.0);
     real phase= env_real("PHASE", M_PI / 2);   /* first magnet points up */
     real vrot = env_real("VROT", 0.0);         /* v0 = vrot * (-y, x)    */
+    CENTRAL   = env_real("CENTRAL", 0.0);
+    real cd   = env_real("CD", 2.0);
+    CD2       = cd * cd;
+    real vkep = env_real("VKEP", 0.0);  /* v0 = vkep * v_circ(r) tangential */
 
     for (int i = 0; i < NMAG; i++) {
         real a = phase + 2.0 * M_PI * i / NMAG;
@@ -98,8 +109,19 @@ int main(int argc, char **argv) {
         real px = xmin + (xmax - xmin) * ((i + 0.5) / W);
         real py = ymax - (ymax - ymin) * ((j + 0.5) / H);
         x[p] = px;  y[p] = py;
-        vx[p] = -vrot * py;
-        vy[p] =  vrot * px;
+        if (vkep != 0.0) {
+            /* local circular-orbit speed: v = sqrt(|F_inward| * r) */
+            real ax, ay;
+            accel(px, py, 0, 0, &ax, &ay);   /* v=0: friction term vanishes */
+            real r = sqrt(px * px + py * py) + 1e-12;
+            real finw = -(ax * px + ay * py) / r;   /* inward component */
+            real v = vkep * sqrt(fmax(finw, 0.0) * r);
+            vx[p] = -v * py / r;
+            vy[p] =  v * px / r;
+        } else {
+            vx[p] = -vrot * py;
+            vy[p] =  vrot * px;
+        }
     }
 
     fprintf(stderr, "grid %dx%d  n=%ld  dt=%g  friction=%g spring=%g strength=%g d=%g nmag=%d mrad=%g\n",
