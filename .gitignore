@@ -1,0 +1,4 @@
+out/
+sim/pendulum
+*.xy
+__pycache__/
