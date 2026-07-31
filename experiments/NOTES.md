@@ -81,3 +81,24 @@ extent x ±7.1111 y ±4, dt 0.01, twilight offset −0.25.
 Hero times: 0.4 (ref img1), 6 (ref img2), 14 (ref img3).
 Finals simulated at 3840×2160, downsampled 2x to 1080p; 4K natives kept for
 t=0.4/6/14. Animation: 1280×720, t 0→20 step 0.05, 30 fps (13.3 s).
+
+## E8 — fixing "grainy + flat solid colors in the middle" (user feedback)
+
+Diagnosis: friction 0.2 made captured particles settle onto the magnets
+(basin pixels collapse to one point → flat solid petals) and sharp wells
+(d=0.3) scattered plunging orbits violently (pixel-level speckle around the
+flower).
+
+Tried and rejected:
+- friction 0.05 alone: winding runs too long (too many wraps early) and the
+  whole frame eventually decoheres into grain (t≥32).
+- quadratic drag (DRAG2, aerodynamic |v|v): preserves structure for a very
+  long time but freezes the field into posterized flat patches — worse.
+- weak wells (S=0.7) or very soft wells (d=0.6): background spiral dominates,
+  wells nearly invisible — featureless.
+
+Fix (E8 final): FRICTION=0.1, HEIGHT(d)=0.45, STRENGTH=1, BGA=1, VKEP=-1.
+Verified on 2x-zoomed center views (2560x1440, ss=2): petals keep glossy
+internal gradients (particles still orbit inside wells), chaos confined to a
+resolvable filigree ring, mid-field smooth swirl with pinwheel cusps.
+New hero times: 0.4 / 10 / 20 (+24, 28 for late marbling).
