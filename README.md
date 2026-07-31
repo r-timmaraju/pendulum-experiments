@@ -7,8 +7,8 @@ moment is determined by the particle's *current* position. Chaos makes
 neighbouring initial conditions diverge, painting fractal filigree between
 coherent swirl arms.
 
-![t=6](renders/final4k_t0006.000.png)
-![t=14](renders/final4k_t0014.000.png)
+![t=10](renders/v2_t0010.000.png)
+![t=20](renders/v2_t0020.000.png)
 
 Animation: `renders/pendulum_swirl.mp4` (t = 0 → 20, 30 fps).
 Native 4K stills: `renders/*_4k.png`. All other stills are 1920×1080,
@@ -24,7 +24,7 @@ with fixed-step RK4 (dt = 0.01, converged to ~1e-6 vs dt = 0.0025):
           + Σᵢ strength·(mᵢ − r)/(|mᵢ − r|² + d²)^(3/2)   (five wells, pentagon radius 1)
           − A·r/(|r|² + D²)                               (broad log-potential background)
 
-with friction = 0.2, strength = 1, d = 0.3, A = 1, D = 1, and the five wells
+with friction = 0.1, strength = 1, d = 0.45, A = 1, D = 1, and the five wells
 on a pentagon of radius 1 (one vertex pointing up, +y).
 
 **Initial velocity** is the local circular-orbit velocity, clockwise:
@@ -55,16 +55,23 @@ matching the reference's first frame.
   (Ω ∝ r^{-3/2}) leaves the corners nearly static while the middle over-winds.
   The reference's corners rotate a substantial fraction of a turn while the
   interior is only a few turns in — a flatter Ω(r) ∝ 1/r profile fits.
-- **friction 0.2**: lower values dissolve the picture into pixel noise by
-  t ≈ 10–20; 0.2 keeps chaos confined to filigree bands between smooth arms.
+- **friction 0.1, well smoothing d 0.45**: high friction (0.2) makes captured
+  particles settle onto the magnets — basin pixels collapse to a point and the
+  flower petals turn into flat solid patches; sharp wells (d ≤ 0.3) scatter
+  plunging orbits violently, leaving pixel speckle around the flower. Lower
+  friction keeps particles orbiting inside the wells (glossy gradient petals)
+  and softer wells confine the chaos to a resolvable filigree ring. Going
+  further (friction 0.05, or quadratic drag, or weaker wells) either
+  decoheres the whole frame, freezes it into posterized patches, or erases
+  the well structure entirely — see experiments/NOTES.md E8.
 
 ## Reproducing
 
     gcc -O3 -march=native -ffast-math -fopenmp -o sim/pendulum sim/pendulum.c -lm
 
     # simulate: writes raw float32 (x,y) snapshots per pixel
-    SPRING=0 STRENGTH=1 FRICTION=0.2 VKEP=-1.0 BGA=1 BGD=1 HEIGHT=0.3 \
-      ./sim/pendulum 3840 2160 -7.1111 7.1111 -4 4 0.01 out/run 0.4 6 14
+    SPRING=0 STRENGTH=1 FRICTION=0.1 VKEP=-1.0 BGA=1 BGD=1 HEIGHT=0.45 \
+      ./sim/pendulum 3840 2160 -7.1111 7.1111 -4 4 0.01 out/run 0.4 10 20
 
     # render: twilight colormap on position angle, 2x supersampled
     python3 render.py 'out/run_*.xy' -W 3840 -H 2160 --offset -0.25 --supersample 2
@@ -73,5 +80,6 @@ matching the reference's first frame.
     python3 scripts/make_animation.py
 
 Timeline landmarks: t ≈ 0.4 reproduces the reference's first image (angular
-cone with a budding flower), t ≈ 6 the mid-stage smooth swirl with the ring
-of pinwheel singularities, t ≈ 14 the late dense liquid-metal marbling.
+cone with a budding flower), t ≈ 10–14 the mid-stage smooth swirl with the
+ring of pinwheel singularities, t ≈ 20–28 the late dense liquid-metal
+marbling. Earlier renders from the friction=0.2 config remain in git history.
