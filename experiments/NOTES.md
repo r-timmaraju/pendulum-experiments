@@ -63,3 +63,21 @@ actual force law. Pure 5-well potential, strength=1, extent ±4.
 Chosen so far: SPRING=0 STRENGTH=1 FRICTION=0.2 VKEP=1.0, extent ±4 (16:9).
 TODO: check swirl handedness vs reference (theirs winds CW inward?),
 timing fine-tune, supersampled finals, animation.
+
+## E6 — flat rotation curve background (BGA/BGD log-potential)
+
+Added F -= A·r/(r²+D²) (galaxy-like flat v_circ at large r). A=1, D=1 with
+wells S=1: corner winding now keeps pace with the interior the way the
+reference does. A=2 or d=0.4 over-smooths the flower region.
+
+## E7 — handedness + final config
+
+Reference eddy curls and arm trailing are clockwise → VKEP=-1.
+d=0.3 rounds the petals slightly. dt convergence: 0.01 vs 0.0025 at t=14
+gives median position diff 5e-7 — fully converged.
+
+FINAL: SPRING=0 STRENGTH=1 FRICTION=0.2 VKEP=-1.0 BGA=1 BGD=1 HEIGHT=0.3
+extent x ±7.1111 y ±4, dt 0.01, twilight offset −0.25.
+Hero times: 0.4 (ref img1), 6 (ref img2), 14 (ref img3).
+Finals simulated at 3840×2160, downsampled 2x to 1080p; 4K natives kept for
+t=0.4/6/14. Animation: 1280×720, t 0→20 step 0.05, 30 fps (13.3 s).

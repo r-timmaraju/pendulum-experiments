@@ -40,11 +40,17 @@ static int    NMAG;
 static real   MX[16], MY[16];
 static real   FRICTION, SPRING, STRENGTH, D2;
 static real   CENTRAL, CD2;   /* broad central well: -C r/(r^2+D^2)^{3/2} */
+static real   BGA, BGD2;      /* log-potential bg: -A r/(r^2+D^2) — flat v_circ */
 
 static inline void accel(real x, real y, real vx, real vy,
                          real *ax, real *ay) {
     real fx = -FRICTION * vx - SPRING * x;
     real fy = -FRICTION * vy - SPRING * y;
+    if (BGA != 0.0) {
+        real inv = BGA / (x * x + y * y + BGD2);
+        fx -= x * inv;
+        fy -= y * inv;
+    }
     if (CENTRAL != 0.0) {
         real rr = x * x + y * y + CD2;
         real inv = CENTRAL / (rr * sqrt(rr));
@@ -89,6 +95,9 @@ int main(int argc, char **argv) {
     real cd   = env_real("CD", 2.0);
     CD2       = cd * cd;
     real vkep = env_real("VKEP", 0.0);  /* v0 = vkep * v_circ(r) tangential */
+    BGA       = env_real("BGA", 0.0);
+    real bgd  = env_real("BGD", 1.0);
+    BGD2      = bgd * bgd;
 
     for (int i = 0; i < NMAG; i++) {
         real a = phase + 2.0 * M_PI * i / NMAG;
