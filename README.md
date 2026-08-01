@@ -24,12 +24,14 @@ converged to ~1e-6 vs dt = 0.0025):
           + Σᵢ strength·(mᵢ − r)/(|mᵢ − r|² + d²)^(3/2)   (five wells, pentagon radius 1)
           − A·r/(|r|² + D²)                               (broad log-potential background)
 
-with friction = 0.12, strength = 1, d = 0.45, A = 0.3, D = 1, and the five
-wells on a pentagon of radius 1.5 (one vertex pointing up, +y). The view
-spans x ∈ [−8.89, 8.89], y ∈ [−5, 5].
+with friction = 0.02, strength = 2, d = 0.45, A = 0.15, D = 1, and the five
+wells on a pentagon of radius 2 (one vertex pointing up, +y). The view spans
+x ∈ [−10.67, 10.67], y ∈ [−6, 6].
 
-**Initial velocity** is the local circular-orbit velocity, clockwise:
-v₀ = −√(F_inward·r) · θ̂. This is the key to the reference's look — an
+**Initial velocity** is 0.9× the local circular-orbit velocity, clockwise:
+v₀ = −0.9·√(F_inward·r) · θ̂. The 10% sub-circular bias gives every orbit a
+gentle radial libration that populates the resonance islands (the big
+whorls); exactly-circular starts leave the mid-field a featureless spiral. This is the key to the reference's look — an
 accretion-disk-like flow in which every particle starts on a near-circular
 orbit. Friction then drives a slow coherent inspiral: the inner flow winds
 into spiral arms, particles near the pentagon are captured chaotically into
@@ -37,9 +39,16 @@ the five basins (the central flower), and the far field rotates with the
 flat rotation curve of the log-potential background.
 
 **Color**: matplotlib's cyclic `twilight` colormap applied to the angle of
-the particle's current position, u = (atan2(y,x)/2π − 0.25) mod 1, so at
-t = 0 the frame reads white up / blue left / dark down / orange right —
-matching the reference's first frame.
+the particle's current **velocity**, u = (atan2(vy,vx)/2π) mod 1. For the
+circulating far field the velocity angle is the position angle ±90°, so the
+t = 0 frame reads white up / blue left / dark down / orange right exactly
+like position coloring (and like the reference's first frame) — but a
+particle orbiting inside a well sweeps its velocity direction through a full
+2π every orbit, which paints the wells as full-palette wound whorls and
+makes flat color fills impossible while anything still moves. Position-angle
+coloring (the default, without `--vel`) can never do this: a basin cloud at
+pentagon radius subtends a small angle from the origin, so each petal stays
+one hue and flattens as it settles.
 
 ## Why these choices (see experiments/NOTES.md for the full log)
 
@@ -79,18 +88,18 @@ matching the reference's first frame.
     gcc -O3 -march=native -ffast-math -fopenmp -o sim/pendulum sim/pendulum.c -lm
 
     # simulate: writes raw float32 (x,y) snapshots per pixel
-    SPRING=0 STRENGTH=1 FRICTION=0.12 VKEP=-1.0 BGA=0.3 BGD=1 HEIGHT=0.45 \
-      MAGRADIUS=1.5 \
-      ./sim/pendulum 3840 2160 -8.8889 8.8889 -5 5 0.01 out/run 0.5 16 24
+    DUMPV=1 SPRING=0 STRENGTH=2 FRICTION=0.02 VKEP=-0.9 BGA=0.15 BGD=1 \
+      HEIGHT=0.45 MAGRADIUS=2 \
+      ./sim/pendulum 3840 2160 -10.6667 10.6667 -6 6 0.01 out/run 0.5 12 16 20
 
-    # render: twilight colormap on position angle, 2x supersampled
-    python3 render.py 'out/run_*.xy' -W 3840 -H 2160 --offset -0.25 --supersample 2
+    # render: twilight colormap on velocity angle, 2x supersampled
+    python3 render.py 'out/run_*.xy' -W 3840 -H 2160 --offset 0 --vel --supersample 2
 
     # animation
     python3 scripts/make_animation.py
 
 Timeline landmarks: t ≈ 0.5 reproduces the reference's first image (angular
-cone with a budding flower), t ≈ 12–16 the developing whorl field, t ≈ 20–24
-the wide-whorl liquid-metal look of the reference video, t ≈ 28 the dense
-late marbling. Renders from earlier parameter iterations remain in git
-history.
+cone), t ≈ 12–16 the whorl field with wound full-palette well spirals and a
+star-flower core, t ≈ 20–28 progressively denser winding. Renders from
+earlier parameter iterations (position-angle coloring, higher friction)
+remain in git history; experiments/NOTES.md records why each was rejected.
