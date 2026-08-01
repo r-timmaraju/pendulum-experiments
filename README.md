@@ -16,16 +16,17 @@ rendered at 3840×2160 and Lanczos-downsampled (2× supersampling).
 
 ## Model
 
-Each pixel of a 16:9 grid spanning x ∈ [−7.11, 7.11], y ∈ [−4, 4] is a
-particle with initial position at the pixel's world coordinate, integrated
-with fixed-step RK4 (dt = 0.01, converged to ~1e-6 vs dt = 0.0025):
+Each pixel of a 16:9 grid is a particle with initial position at the
+pixel's world coordinate, integrated with fixed-step RK4 (dt = 0.01,
+converged to ~1e-6 vs dt = 0.0025):
 
     r'' = −friction·r'                                   (linear drag)
           + Σᵢ strength·(mᵢ − r)/(|mᵢ − r|² + d²)^(3/2)   (five wells, pentagon radius 1)
           − A·r/(|r|² + D²)                               (broad log-potential background)
 
-with friction = 0.1, strength = 1, d = 0.45, A = 1, D = 1, and the five wells
-on a pentagon of radius 1 (one vertex pointing up, +y).
+with friction = 0.12, strength = 1, d = 0.45, A = 0.3, D = 1, and the five
+wells on a pentagon of radius 1.5 (one vertex pointing up, +y). The view
+spans x ∈ [−8.89, 8.89], y ∈ [−5, 5].
 
 **Initial velocity** is the local circular-orbit velocity, clockwise:
 v₀ = −√(F_inward·r) · θ̂. This is the key to the reference's look — an
@@ -55,7 +56,15 @@ matching the reference's first frame.
   (Ω ∝ r^{-3/2}) leaves the corners nearly static while the middle over-winds.
   The reference's corners rotate a substantial fraction of a turn while the
   interior is only a few turns in — a flatter Ω(r) ∝ 1/r profile fits.
-- **friction 0.1, well smoothing d 0.45**: high friction (0.2) makes captured
+- **Pentagon radius 1.5, weak background (A = 0.3)**: the big whorls/eddies
+  in the reference are resonance islands driven by the pentagon's 5-fold
+  perturbation of the circular flow. A strong background (A = 1) swamps that
+  perturbation and yields a sterile clean spiral; wells on a larger pentagon
+  with only a weak background spread the whorl field across most of the
+  frame, so striations wrap around large eddies and the gradients read
+  smoothly. Radius 2 over-captures into flat patches; radius 1 confines the
+  whorls to a narrow ring.
+- **friction 0.12, well smoothing d 0.45**: high friction (0.2) makes captured
   particles settle onto the magnets — basin pixels collapse to a point and the
   flower petals turn into flat solid patches; sharp wells (d ≤ 0.3) scatter
   plunging orbits violently, leaving pixel speckle around the flower. Lower
@@ -70,8 +79,9 @@ matching the reference's first frame.
     gcc -O3 -march=native -ffast-math -fopenmp -o sim/pendulum sim/pendulum.c -lm
 
     # simulate: writes raw float32 (x,y) snapshots per pixel
-    SPRING=0 STRENGTH=1 FRICTION=0.1 VKEP=-1.0 BGA=1 BGD=1 HEIGHT=0.45 \
-      ./sim/pendulum 3840 2160 -7.1111 7.1111 -4 4 0.01 out/run 0.4 10 20
+    SPRING=0 STRENGTH=1 FRICTION=0.12 VKEP=-1.0 BGA=0.3 BGD=1 HEIGHT=0.45 \
+      MAGRADIUS=1.5 \
+      ./sim/pendulum 3840 2160 -8.8889 8.8889 -5 5 0.01 out/run 0.5 16 24
 
     # render: twilight colormap on position angle, 2x supersampled
     python3 render.py 'out/run_*.xy' -W 3840 -H 2160 --offset -0.25 --supersample 2
@@ -79,7 +89,8 @@ matching the reference's first frame.
     # animation
     python3 scripts/make_animation.py
 
-Timeline landmarks: t ≈ 0.4 reproduces the reference's first image (angular
-cone with a budding flower), t ≈ 10–14 the mid-stage smooth swirl with the
-ring of pinwheel singularities, t ≈ 20–28 the late dense liquid-metal
-marbling. Earlier renders from the friction=0.2 config remain in git history.
+Timeline landmarks: t ≈ 0.5 reproduces the reference's first image (angular
+cone with a budding flower), t ≈ 12–16 the developing whorl field, t ≈ 20–24
+the wide-whorl liquid-metal look of the reference video, t ≈ 28 the dense
+late marbling. Renders from earlier parameter iterations remain in git
+history.
