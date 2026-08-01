@@ -3,14 +3,15 @@
 A replication of the r/generative ["Fractal basins of attraction"](https://www.reddit.com/r/generative/comments/w2w3ie/fractal_basins_of_attraction/)
 animation: every pixel is an independent particle moving in a potential with
 five minima at the corners of a regular pentagon; the pixel's color at any
-moment is determined by the particle's *current* position. Chaos makes
+moment is determined by the direction of the particle's *current* motion.
+Chaos makes
 neighbouring initial conditions diverge, painting fractal filigree between
 coherent swirl arms.
 
-![t=10](renders/v2_t0010.000.png)
-![t=20](renders/v2_t0020.000.png)
+![t=12](renders/v4_t0012.000.png)
+![t=16](renders/v4_t0016.000.png)
 
-Animation: `renders/pendulum_swirl.mp4` (t = 0 → 20, 30 fps).
+Animation: `renders/pendulum_swirl.mp4` (t = 0 → 24, 30 fps).
 Native 4K stills: `renders/*_4k.png`. All other stills are 1920×1080,
 rendered at 3840×2160 and Lanczos-downsampled (2× supersampling).
 
@@ -65,23 +66,20 @@ one hue and flattens as it settles.
   (Ω ∝ r^{-3/2}) leaves the corners nearly static while the middle over-winds.
   The reference's corners rotate a substantial fraction of a turn while the
   interior is only a few turns in — a flatter Ω(r) ∝ 1/r profile fits.
-- **Pentagon radius 1.5, weak background (A = 0.3)**: the big whorls/eddies
-  in the reference are resonance islands driven by the pentagon's 5-fold
-  perturbation of the circular flow. A strong background (A = 1) swamps that
-  perturbation and yields a sterile clean spiral; wells on a larger pentagon
-  with only a weak background spread the whorl field across most of the
-  frame, so striations wrap around large eddies and the gradients read
-  smoothly. Radius 2 over-captures into flat patches; radius 1 confines the
-  whorls to a narrow ring.
-- **friction 0.12, well smoothing d 0.45**: high friction (0.2) makes captured
-  particles settle onto the magnets — basin pixels collapse to a point and the
-  flower petals turn into flat solid patches; sharp wells (d ≤ 0.3) scatter
-  plunging orbits violently, leaving pixel speckle around the flower. Lower
-  friction keeps particles orbiting inside the wells (glossy gradient petals)
-  and softer wells confine the chaos to a resolvable filigree ring. Going
-  further (friction 0.05, or quadratic drag, or weaker wells) either
-  decoheres the whole frame, freezes it into posterized patches, or erases
-  the well structure entirely — see experiments/NOTES.md E8.
+- **Large pentagon (radius 2), strong wells (2), weak background (A = 0.15)**:
+  the big whorls in the reference are resonance islands driven by the
+  pentagon's 5-fold perturbation of the circulating flow. A strong background
+  swamps that perturbation and yields a sterile clean spiral; strong wells on
+  a large pentagon with only a whisper of background spread the whorl field
+  across most of the frame.
+- **Velocity-angle coloring + near-zero friction (0.02)**: with position-angle
+  coloring, basins inevitably flatten into solid patches as particles settle
+  (E8/E9); any appreciable friction accelerates this. Velocity coloring makes
+  every still-moving region a gradient by construction, and friction 0.02
+  means nothing settles within the rendered time span. Well smoothing
+  d = 0.45 keeps chaotic scattering gentle (sharp wells leave pixel speckle
+  around the flower). The full chain of rejected alternatives — quadratic
+  drag, rigid-rotation ICs, weak wells — is in experiments/NOTES.md E8–E10.
 
 ## Reproducing
 
