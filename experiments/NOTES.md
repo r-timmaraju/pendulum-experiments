@@ -102,3 +102,28 @@ Verified on 2x-zoomed center views (2560x1440, ss=2): petals keep glossy
 internal gradients (particles still orbit inside wells), chaos confined to a
 resolvable filigree ring, mid-field smooth swirl with pinwheel cusps.
 New hero times: 0.4 / 10 / 20 (+24, 28 for late marbling).
+
+## E9 — large whorls spread across the frame (user feedback round 2)
+
+Target: much more gradual spiral; many LARGE whorls/eddies spreading the
+striations over a wide area so gradients read smoothly (user supplied a
+video frame from the original).
+
+Diagnosis: the E8 BGA=1 background dominates the mid-field radial force and
+swamps the wells' 5-fold azimuthal perturbation → sterile clean spiral with
+whorls confined near the pentagon. The whorls are resonance islands driven
+by the pentagon perturbation; big widespread whorls need the wells to
+dominate the mid-field. More structure per wrap = stronger relative
+perturbation, not more time.
+
+Sweep BGA ∈ {0, 0.3} × MAGRADIUS ∈ {1, 1.5, 2} (f=0.12, d=0.45, S=1):
+- MAGRADIUS=1.5 is the sweet spot: whorl field covers most of the frame.
+  MR=2 over-captures into posterized patches; MR=1 stays sterile.
+- BGA=0.3 (weak) keeps far corners winding without sterilizing mid-field.
+- friction 0.12 vs 0.08: 0.08 develops fine tangles near center by t≈28;
+  0.12 holds large smooth whorls through t≈24-28.
+- View extent ±5 (x ±8.889) matches the reference's flower/whorl proportion.
+
+FINAL v3: SPRING=0 STRENGTH=1 FRICTION=0.12 VKEP=-1 BGA=0.3 BGD=1
+HEIGHT=0.45 MAGRADIUS=1.5, extent x ±8.8889 y ±5, dt 0.01, twilight −0.25.
+Hero times: ~16 (developing whorls), ~20-24 (target look), 28 (dense).

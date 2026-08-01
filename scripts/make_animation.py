@@ -20,8 +20,8 @@ DT_FRAME = 0.05
 FPS = 30
 OFFSET = -0.25
 CHUNK = 120             # frames per simulation pass
-ENV = dict(os.environ, SPRING="0", STRENGTH="1", FRICTION="0.1",
-           VKEP="-1.0", BGA="1", BGD="1", HEIGHT="0.45")
+ENV = dict(os.environ, SPRING="0", STRENGTH="1", FRICTION="0.12",
+           VKEP="-1.0", BGA="0.3", BGD="1", HEIGHT="0.45", MAGRADIUS="1.5")
 
 os.makedirs("out/anim", exist_ok=True)
 cmap = plt.get_cmap("twilight")
@@ -32,8 +32,8 @@ writer = imageio.get_writer("renders/pendulum_swirl.mp4", fps=FPS,
 all_times = [round(t, 3) for t in np.arange(DT_FRAME, T_END + 1e-9, DT_FRAME)]
 for c0 in range(0, len(all_times), CHUNK):
     times = all_times[c0:c0 + CHUNK]
-    args = ["./sim/pendulum", str(SW), str(SH), "-7.1111", "7.1111",
-            "-4", "4", "0.01", "out/anim/f"] + [str(t) for t in times]
+    args = ["./sim/pendulum", str(SW), str(SH), "-8.8889", "8.8889",
+            "-5", "5", "0.01", "out/anim/f"] + [str(t) for t in times]
     print(f"chunk t={times[0]}..{times[-1]}: simulating {len(times)} frames")
     subprocess.run(args, env=ENV, check=True,
                    stderr=subprocess.DEVNULL)
