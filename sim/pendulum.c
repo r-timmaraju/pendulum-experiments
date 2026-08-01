@@ -112,6 +112,8 @@ int main(int argc, char **argv) {
         MY[i] = mrad * sin(a);
     }
 
+    int dumpv = getenv("DUMPV") != NULL;   /* write x,y,vx,vy instead of x,y */
+
     long n = (long)W * H;
     real *x  = malloc(n * sizeof(real));
     real *y  = malloc(n * sizeof(real));
@@ -144,7 +146,8 @@ int main(int argc, char **argv) {
             W, H, n, dt, FRICTION, SPRING, STRENGTH, d, NMAG, mrad);
 
     real t = 0.0;
-    float *buf = malloc(n * 2 * sizeof(float));
+    int stride = dumpv ? 4 : 2;
+    float *buf = malloc(n * stride * sizeof(float));
 
     for (int s = 0; s < nsnap; s++) {
         long steps = lround((tsnap[s] - t) / dt);
@@ -170,14 +173,18 @@ int main(int argc, char **argv) {
                 VY += dt / 6.0 * (ay1 + 2 * ay2 + 2 * ay3 + ay4);
             }
             x[p] = X; y[p] = Y; vx[p] = VX; vy[p] = VY;
-            buf[2 * p]     = (float)X;
-            buf[2 * p + 1] = (float)Y;
+            buf[stride * p]     = (float)X;
+            buf[stride * p + 1] = (float)Y;
+            if (dumpv) {
+                buf[stride * p + 2] = (float)VX;
+                buf[stride * p + 3] = (float)VY;
+            }
         }
         t += steps * dt;
         char fname[512];
         snprintf(fname, sizeof fname, "%s_t%08.3f.xy", prefix, t);
         FILE *f = fopen(fname, "wb");
-        fwrite(buf, sizeof(float), n * 2, f);
+        fwrite(buf, sizeof(float), n * stride, f);
         fclose(f);
         fprintf(stderr, "t=%8.3f  (%ld steps, %.1fs)  -> %s\n",
                 t, steps, omp_get_wtime() - t0, fname);

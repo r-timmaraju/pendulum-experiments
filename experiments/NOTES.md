@@ -127,3 +127,40 @@ Sweep BGA ∈ {0, 0.3} × MAGRADIUS ∈ {1, 1.5, 2} (f=0.12, d=0.45, S=1):
 FINAL v3: SPRING=0 STRENGTH=1 FRICTION=0.12 VKEP=-1 BGA=0.3 BGD=1
 HEIGHT=0.45 MAGRADIUS=1.5, extent x ±8.8889 y ±5, dt 0.01, twilight −0.25.
 Hero times: ~16 (developing whorls), ~20-24 (target look), 28 (dense).
+
+## E10 — velocity-angle coloring (user feedback round 3)
+
+User: still big flat-color areas; gradients pushed to the edge; the
+reference's five central petals are themselves whorls (wound spirals with
+full-palette gradients inside), and smooth gradients are the whole point.
+
+Dead ends first:
+- rigid rotation ICs (VROT) on the E9 potential: reintroduces plunge-chaos
+  speckle around the flower.
+- near-zero friction with exactly-circular VKEP ICs: petals whorl but the
+  mid-field is a featureless clean spiral (circular orbits never populate
+  the resonance islands).
+
+Root-cause insight: with color = angle of POSITION from the origin, a petal
+can never show a full-palette whorl — a particle orbiting a well at pentagon
+radius subtends only a small angle from the origin, so the whole basin stays
+near one hue (and once it settles it is exactly one hue → flat). The
+reference's full-hue petal whorls imply color = angle of the current
+VELOCITY: for circulating far-field particles the velocity angle is just the
+position angle ±90° (identical global cone/spiral, matches frame 1), but for
+well-orbiting particles the velocity direction sweeps a full 2π every orbit
+→ rainbow whorls at every well, and flat fills become impossible while
+anything moves.
+
+Implementation: DUMPV=1 makes the sim write (x,y,vx,vy); render.py --vel
+colors by atan2(vy,vx); cmap offset 0 (white up / blue left / dark down /
+orange right at t=0 for clockwise flow, same as the reference).
+
+Supporting parameters: near-zero friction (0.02) so nothing settles,
+slightly sub-circular ICs (VKEP=-0.9) to populate resonance islands with
+gentle radial libration, pentagon radius 2 + strength 2 + weak background
+(BGA=0.15) to spread the whorl field, d=0.45, view ±6.
+
+FINAL v4: DUMPV=1 SPRING=0 STRENGTH=2 FRICTION=0.02 VKEP=-0.9 BGA=0.15
+BGD=1 HEIGHT=0.45 MAGRADIUS=2, extent x ±10.6667 y ±6, dt 0.01,
+twilight offset 0, --vel. Hero times ~12-20.

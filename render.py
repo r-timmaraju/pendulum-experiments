@@ -16,12 +16,19 @@ from PIL import Image
 
 
 def render_file(path, W, H, cmap_name="twilight", offset=0.25, direction=1,
-                supersample=1, out=None, radial=0.0):
+                supersample=1, out=None, radial=0.0, vel=False):
     n = W * H
     data = np.fromfile(path, dtype=np.float32)
-    assert data.size == 2 * n, f"{path}: expected {2*n} floats, got {data.size}"
-    x = data[0::2].reshape(H, W)
-    y = data[1::2].reshape(H, W)
+    stride = data.size // n
+    assert stride in (2, 4) and data.size == stride * n, \
+        f"{path}: expected {2*n} or {4*n} floats, got {data.size}"
+    if vel:
+        assert stride == 4, f"{path}: no velocity data (run sim with DUMPV=1)"
+        x = data[2::stride].reshape(H, W)
+        y = data[3::stride].reshape(H, W)
+    else:
+        x = data[0::stride].reshape(H, W)
+        y = data[1::stride].reshape(H, W)
 
     theta = np.arctan2(y, x)  # [-pi, pi]
     # map so that theta=pi/2 (up) -> u=0 (twilight: light), increasing
@@ -61,6 +68,8 @@ def main():
                     help="downsample factor (input rendered at Nx)")
     ap.add_argument("--radial", type=float, default=0.0,
                     help="darken with radius: 1/(1+radial*r)")
+    ap.add_argument("--vel", action="store_true",
+                    help="color by velocity angle (needs DUMPV=1 data)")
     ap.add_argument("--outdir", default=None)
     args = ap.parse_args()
 
@@ -75,7 +84,8 @@ def main():
                 args.outdir,
                 os.path.splitext(os.path.basename(f))[0] + ".png")
         out = render_file(f, args.W, args.hh, args.cmap, args.offset,
-                          args.direction, args.supersample, out, args.radial)
+                          args.direction, args.supersample, out, args.radial,
+                          args.vel)
         print(out)
 
 
